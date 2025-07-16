@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+
 public class CPUSchedulingVisualization {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -22,17 +23,16 @@ public class CPUSchedulingVisualization {
         int n = sc.nextInt();
 
         for (int i = 0; i < n; i++) {
-            System.out.println("Enter details for Process " + (i + 1));
+           System.out.println("Enter details for Process " + (i + 1));
             System.out.print("Arrival Time: ");
             int at = sc.nextInt();
             System.out.print("Burst Time: ");
             int bt = sc.nextInt();
-            processes.add(new Process(i + 1, at, bt));
-        }
-
-        System.out.println("Choose Scheduling Algorithm:");
+            processes.add(new Process  (i + 1, at, bt));   
+        }  
+        System.out.println("Choose Scheduling Algorithm:"); 
         System.out.println("1. FCFS");
-        System.out.println("2. SJF");
+        System.out.print("2. SJF");
         System.out.println("3. SRTF");
         System.out.println("4. Round Robin");
         System.out.println("5. MLFQ");
@@ -65,6 +65,7 @@ public class CPUSchedulingVisualization {
             }
             default -> System.out.println("Invalid choice.");
         }
+        sc.close();
     }
 }
 
