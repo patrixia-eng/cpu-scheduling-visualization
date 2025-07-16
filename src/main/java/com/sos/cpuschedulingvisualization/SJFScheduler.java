@@ -9,66 +9,39 @@ package com.sos.cpuschedulingvisualization;
  * @author Nitro-5
  */import java.util.*;
 public class SJFScheduler {
-      public static void runSJF(List<Process> processes) {
-        int n = processes.size();
-        boolean[] isCompleted = new boolean[n];
-        int completed = 0;
+      static void sjf(List<Process> plist) {
         int currentTime = 0;
+        int completed = 0;
+        StringBuilder gantt = new StringBuilder("Gantt Chart:\n");
+        boolean[] visited = new boolean[plist.size()];
 
-        int totalTAT = 0, totalWT = 0, totalRT = 0;
-
-        StringBuilder gantt = new StringBuilder("\nGantt Chart:\n|");
-
-        while (completed < n) {
+        while (completed < plist.size()) {
             int idx = -1;
-            int minBurst = Integer.MAX_VALUE;
+            int minBT = Integer.MAX_VALUE;
 
-            for (int i = 0; i < n; i++) {
-                Process p = processes.get(i);
-                if (p.arrivalTime <= currentTime && !isCompleted[i]) {
-                    if (p.burstTime < minBurst) {
-                        minBurst = p.burstTime;
-                        idx = i;
-                    } else if (p.burstTime == minBurst && p.arrivalTime < processes.get(idx).arrivalTime) {
-                        idx = i;
-                    }
+            for (int i = 0; i < plist.size(); i++) {
+                Process p = plist.get(i);
+                if (p.arrivalTime <= currentTime && !visited[i] && p.burstTime < minBT) {
+                    minBT = p.burstTime;
+                    idx = i;
                 }
             }
 
-            if (idx != -1) {
-                Process p = processes.get(idx);
-                p.responseTime = currentTime - p.arrivalTime;
-                currentTime += p.burstTime;
-                p.completionTime = currentTime;
-                p.turnaroundTime = p.completionTime - p.arrivalTime;
-                p.waitingTime = p.turnaroundTime - p.burstTime;
-
-                isCompleted[idx] = true;
-                completed++;
-
-                totalTAT += p.turnaroundTime;
-                totalWT += p.waitingTime;
-                totalRT += p.responseTime;
-
-                gantt.append(" P").append(p.pid).append(" |");
-            } else {
-                gantt.append(" IDLE |");
+            if (idx == -1) {
                 currentTime++;
+                continue;
             }
-        }
 
-        System.out.println(gantt.toString());
-        System.out.println("\nPID\tAT\tBT\tCT\tTAT\tWT\tRT");
-        for (Process p : processes) {
-            System.out.printf("P%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
-                    p.pid, p.arrivalTime, p.burstTime, p.completionTime,
-                    p.turnaroundTime, p.waitingTime, p.responseTime);
+            Process p = plist.get(idx);
+            p.responseTime = currentTime - p.arrivalTime;
+            currentTime += p.burstTime;
+            p.completionTime = currentTime;
+            p.turnaroundTime = p.completionTime - p.arrivalTime;
+            p.waitingTime = p.turnaroundTime - p.burstTime;
+            visited[idx] = true;
+            completed++;
+            gantt.append("| P").append(p.id).append(" ");
         }
-
-        System.out.printf("\nAverage Turnaround Time: %.2f\n", totalTAT / (float) n);
-        System.out.printf("Average Waiting Time   : %.2f\n", totalWT / (float) n);
-        System.out.printf("Average Response Time  : %.2f\n", totalRT / (float) n);
+        gantt.append("|\n");
+        displayResults(plist, gantt.toString());
     }
-}
-    
-
