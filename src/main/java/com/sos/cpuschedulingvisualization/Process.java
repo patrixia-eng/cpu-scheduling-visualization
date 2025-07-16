@@ -8,23 +8,14 @@ package com.sos.cpuschedulingvisualization;
  *
  * @author Nitro-5
  */
-public class Process {
-    public final int pid;
-    public int arrivalTime;
-    public int burstTime;
-    public int completionTime;
-    public int turnaroundTime;
-    public int waitingTime;
-    public int responseTime;
-    public int startTime;
-    public int remainingTime;
+class Process {
+    int id, arrivalTime, burstTime, completionTime, turnaroundTime, waitingTime, responseTime, remainingTime;
+    boolean started = false;
 
-    public Process(int pid, int arrivalTime, int burstTime) {
-        this.pid = pid;
+    public Process(int id, int arrivalTime, int burstTime) {
+        this.id = id;
         this.arrivalTime = arrivalTime;
         this.burstTime = burstTime;
         this.remainingTime = burstTime;
-        this.startTime = -1;
     }
 }
-
