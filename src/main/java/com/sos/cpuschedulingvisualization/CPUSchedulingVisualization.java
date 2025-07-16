@@ -6,67 +6,72 @@ package com.sos.cpuschedulingvisualization;
 
 /**
  *
- * @author Nitro-5
- * i
+ * @author Owen
+ * 
  */
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-
 public class CPUSchedulingVisualization {
+    static Scanner sc = new Scanner(System.in);
+
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+        System.out.println("CPU Scheduling Simulation");
         List<Process> processes = new ArrayList<>();
 
         System.out.print("Enter number of processes: ");
         int n = sc.nextInt();
 
-        for (int i = 0; i < n; i++) {
-           System.out.println("Enter details for Process " + (i + 1));
-            System.out.print("Arrival Time: ");
-            int at = sc.nextInt();
-            System.out.print("Burst Time: ");
-            int bt = sc.nextInt();
-            processes.add(new Process  (i + 1, at, bt));   
-        }  
-        System.out.println("Choose Scheduling Algorithm:"); 
-        System.out.println("1. FCFS");
-        System.out.print("2. SJF");
-        System.out.println("3. SRTF");
-        System.out.println("4. Round Robin");
-        System.out.println("5. MLFQ");
-        int choice = sc.nextInt();
+        System.out.print("Manual input or Random generation? (M/R): ");
+        char choice = sc.next().toUpperCase().charAt(0);
 
-        switch (choice) {
-            case 1 -> FCFSScheduler.runFCFS(processes);
-            case 2 -> SJFScheduler.runSJF(processes);
-            case 3 -> SRTFScheduler.runSRTF(processes);
-            case 4 -> {
-                System.out.print("Enter time quantum: ");
-                int quantum = sc.nextInt();
-                RRScheduler.runRR(processes, quantum);
+        if (choice == 'M') {
+            for (int i = 0; i < n; i++) {
+                System.out.print("Enter arrival time for P" + i + ": ");
+                int at = sc.nextInt();
+                System.out.print("Enter burst time for P" + i + ": ");
+                int bt = sc.nextInt();
+                processes.add(new Process(i, at, bt));
             }
-            case 5 -> {
-                int levels = 4;
-                int[] quantums = new int[levels];
-                int[] allotments = new int[levels - 1];
-
-                System.out.println("Enter Time Quantums for MLFQ (Q0 to Q2, Q3 is FCFS):");
-                for (int i = 0; i < levels - 1; i++) {
-                    System.out.print("Quantum for Q" + i + ": ");
-                    quantums[i] = sc.nextInt();
-                    System.out.print("Allotment for Q" + i + ": ");
-                    allotments[i] = sc.nextInt();
-                }
-                quantums[levels - 1] = Integer.MAX_VALUE; // FCFS for last queue
-
-                MLFQScheduler.runMLFQ(processes, quantums, allotments);
+        } else {
+            Random rand = new Random();
+            for (int i = 0; i < n; i++) {
+                int at = rand.nextInt(10);
+                int bt = rand.nextInt(9) + 1;
+                processes.add(new Process(i, at, bt));
+                System.out.println("Generated P" + i + " AT: " + at + ", BT: " + bt);
             }
-            default -> System.out.println("Invalid choice.");
         }
-        sc.close();
+
+        System.out.println("Select Scheduling Algorithm:");
+        System.out.println("1. FCFS\n2. SJF\n3. SRTF\n4. Round Robin\n5. MLFQ");
+        int algo = sc.nextInt();
+
+        switch (algo) {
+            case 1:
+                fcfs(processes);
+                break;
+            case 2:
+                sjf(processes);
+                break;
+            case 3:
+                srtf(processes);
+                break;
+            case 4:
+                System.out.print("Enter Time Quantum: ");
+                int quantum = sc.nextInt();
+                roundRobin(processes, quantum);
+                break;
+            case 5:
+                int[] quanta = new int[4];
+                for (int i = 0; i < 4; i++) {
+                    System.out.print("Enter time quantum for Q" + i + ": ");
+                    quanta[i] = sc.nextInt();
+                }
+                mlfq(processes, quanta);
+                break;
+            default:
+                System.out.println("Invalid choice.");
+        }
     }
-}
-
-
