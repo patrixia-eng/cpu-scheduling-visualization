@@ -8,7 +8,10 @@ package com.sos.cpuschedulingvisualization;
  *
  * @author MAGSAYO_HERNANDO
  */
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 public class RRScheduler {
      public static void runRR(List<Process> processList, int quantum) {
