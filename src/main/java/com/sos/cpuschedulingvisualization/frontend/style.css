@@ -1,106 +1,186 @@
+select#algorithm {
+    width: 320px;
+    height: 100px;
+    font-size: 1.5em;
+    border: 1.2px solid #e75480;
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: #e75480;
+    background: #fff0f6;
+    font-weight: 500px;
+    margin-right: 16px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(231,84,128,0.08);
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+select#algorithm:focus {
+    border: 1.5px solid #ff69b4;
+    box-shadow: 0 0 0 2px #ffb6d5;
+}
 body {
     font-family: Arial, sans-serif;
-    background: #ffebf3;
+    background: #f7f7f7;
     margin: 0;
     padding: 0;
 }
 .container {
-    max-width: 700px;
-    margin: 40px auto;
-    background: #ffe4ee;
-    padding: 30px 40px;
+    max-width: 900px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
-}
-h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
 }
 .form-section {
     margin-bottom: 20px;
 }
-form label {
-    display: inline-block;
-    margin-right: 10px;
-    color: #444;
-    font-weight: 500;
-}
-input[type="number"], select {
-    padding: 6px;
-    margin-top: 5px;
-    margin-bottom: 10px;
-    width: 90px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-}
-button {
-    background: #007bff;
-    color: #fff;
-    border: none;
-    padding: 8px 18px;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
-    font-size: 1em;
-}
-button:hover {
-    background: #0056b3;
+body {
+    background: #ffe4f0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 1.5em;
 }
 
-#ganttChartContainer {
-    background: #fff;
-    padding: 10px;
-    border: 2px solid #ff69b4;
-    border-radius: 8px;
-    overflow-x: auto;
-    margin-top: 10px;
-    height: 80px;
-    display: flex;
-    align-items: center;
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    background: #fff0f6;
+    border-radius: 18px;
+    box-shadow: 0 6px 32px rgba(231,84,128,0.18);
+    padding: 40px 50px 50px 50px;
 }
-.gantt-chart {
+
+h1 {
+    text-align: center;
+    color: #e75480;
+    font-size: 3.2em;
+    margin-bottom: 32px;
+    letter-spacing: 2px;
+    font-weight: 900;
+}
+
+.form-section {
+    margin-bottom: 36px;
+    font-size: 1.4em;
+}
+
+label {
+    margin-right: 10px;
+    font-weight: 700;
+    color: #e75480;
+    font-size: 1.1em;
+}
+
+input[type="number"], input[type="text"] {
+    border: 1.2px solid #e75480;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 1.2em;
+    margin-right: 12px;
+    margin-bottom: 8px;
+    background: #fff;
+    color: #e75480;
+    font-weight: 600;
+}
+
+button {
+    background: linear-gradient(90deg, #e75480 60%, #ffb6d5 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 1.2em;
+    cursor: pointer;
+    margin-right: 10px;
+    margin-top: 8px;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(231,84,128,0.10);
+    transition: background 0.2s, transform 0.2s;
+}
+button:hover {
+    background: linear-gradient(90deg, #ff8ecf 60%, #e75480 100%);
+    transform: scale(1.05);
+}
+
+.gantt-chart, .animated-gantt {
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    min-height: 120px;
+    max-height: 320px;
+    background: #ffe4f0;
+    border-radius: 12px;
+    border: 1.2px solid #e75480;
+    padding: 24px 12px 12px 12px;
+    margin-bottom: 24px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-size: 1.2em;
+    box-shadow: 0 2px 12px rgba(231,84,128,0.10);
+    gap: 8px 8px;
 }
 .gantt-bar {
-    background: #e40072;
-    color: white;
-    padding: 6px;
-    text-align: center;
-    border-radius: 5px;
-    margin-right: 4px;
+    min-width: 60px;
+    width: 60px;
+    height: 60px;
+    background: #e75480;
+    color: #fff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: bold;
-    min-width: 40px;
-    height: 40px;
-    line-height: 40px;
-    opacity: 0;
-    width: 0;
-    transition: opacity 0.3s, width 0.6s ease-out;
+    font-size: 1.1em;
+    box-shadow: 0 2px 12px rgba(231,84,128,0.15);
+    transition: transform 0.3s, background 0.3s;
+    animation: popin 0.5s;
+    position: relative;
+    margin: 0;
 }
-.gantt-time {
-    font-size: 0.85em;
-    margin-right: 6px;
-    color: #555;
+.gantt-bar[data-color] {
+    background: var(--bar-color);
+    color: #fff;
 }
-#metrics {
-    margin-top: 15px;
+@keyframes popin {
+    0% { transform: scale(0.7); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
-#metrics table {
+
+table {
     width: 100%;
     border-collapse: collapse;
-    background: #ffb6d5;
-    border: 2px solid #000;
+    margin-top: 16px;
+    font-size: 1.3em;
+    background: #fff0f6;
+    table-layout: fixed;
 }
-#metrics th, #metrics td {
-    padding: 8px;
+
+th, td {
+    border: 0.7px solid #e75480;
+    padding: 6px 6px;
     text-align: center;
-    border: 1px solid #000;
+    font-size: 1.1em;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
-#metrics th {
-    background: #ff69b4;
-    color: white;
+th {
+    background: #ffb6d5;
+    color: #e75480;
+    font-size: 1.2em;
+    font-weight: 800;
 }
-#metrics tr:nth-child(even) {
-    background: #ffe4ee;
+
+#metrics {
+    margin-top: 24px;
+    font-size: 15px;
+}
+
+::-webkit-scrollbar {
+    height: 12px;
+    background: #ffe4f0;
+}
+::-webkit-scrollbar-thumb {
+    background: #e75480;
+    border-radius: 8px;
 }
