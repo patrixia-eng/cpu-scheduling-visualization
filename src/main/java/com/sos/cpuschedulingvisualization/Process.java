@@ -6,7 +6,7 @@ package com.sos.cpuschedulingvisualization;
 
 /**
  *
- * @author Nitro-5
+ * @author MAGSAYO_HERNANDO
  */
 class Process {
     int id, arrivalTime, burstTime, completionTime, turnaroundTime, waitingTime, responseTime, remainingTime;
