@@ -62,21 +62,21 @@ Developed with **Java (backend)** and **JavaScript HTML (frontend)** version.
 ## Screenshots
 
 ### SRTF Simulation Example
-![SRTF Example](<img width="1366" height="768" alt="SRTF" src="https://github.com/user-attachments/assets/48536ea7-81dd-41ff-a8ec-e9f28a99a789" />)
+<img width="1366" height="768" alt="SRTF" src="https://github.com/user-attachments/assets/48536ea7-81dd-41ff-a8ec-e9f28a99a789" />
 
 ### FCFS Simulation Example
-![FCFS Example](<img width="1366" height="768" alt="FCFS" src="https://github.com/user-attachments/assets/d4f1dd08-e26a-4369-b2e3-4a412430aa58" />)
+<img width="1366" height="768" alt="FCFS" src="https://github.com/user-attachments/assets/d4f1dd08-e26a-4369-b2e3-4a412430aa58" />
 
 ### SJF Simulation Example
-![SJF Example](<img width="1366" height="768" alt="SJF" src="https://github.com/user-attachments/assets/27fd99ae-8e75-47ac-9779-7e842130bb79" />
-)
+<img width="1366" height="768" alt="SJF" src="https://github.com/user-attachments/assets/27fd99ae-8e75-47ac-9779-7e842130bb79" />
 
 ### RR Simulation Example
-![RR Example](<img width="1366" height="768" alt="RR" src="https://github.com/user-attachments/assets/0388e191-80ed-44cc-8b51-f1d6610fc786" />)
+<img width="1366" height="768" alt="RR" src="https://github.com/user-attachments/assets/0388e191-80ed-44cc-8b51-f1d6610fc786" />
 
 ### MLFQ Simulation Example
-![MLFQ Example](<img width="1366" height="768" alt="MLFQ2" src="https://github.com/user-attachments/assets/7649110f-d5d6-4be0-9ceb-26841dfb0d42" />
-<img width="1366" height="768" alt="MLFQ1" src="https://github.com/user-attachments/assets/c85cf7a1-81de-4f32-b17a-f0ba969d2b09" />)
+<img width="1366" height="768" alt="MLFQ2" src="https://github.com/user-attachments/assets/7649110f-d5d6-4be0-9ceb-26841dfb0d42" />
+<img width="1366" height="768" alt="MLFQ1" src="https://github.com/user-attachments/assets/c85cf7a1-81de-4f32-b17a-f0ba969d2b09" />
+
 
 ---
 
@@ -94,23 +94,26 @@ Developed with **Java (backend)** and **JavaScript HTML (frontend)** version.
 
 ## Sample Output (FCFS)
 
-Gantt Chart:
+### Gantt Chart:
 | P1 | P2 | P3 | P4 | P5 |
 
-Metrics Table:
-PID | Arrival | Burst | Start | Finish | Waiting | Turnaround
-P1  | 2       | 1     | 2     | 3      | 0       | 1
-P2  | 4       | 2     | 4     | 6      | 0       | 2
-P3  | 6       | 3     | 6     | 9      | 0       | 3
-P4  | 8       | 4     | 9     | 13     | 1       | 5
-P5  | 10      | 5     | 13    | 18     | 3       | 8
+### Metrics Table:
+
+| PID | Arrival | Burst | Start | Finish | Waiting | Turnaround |
+|-----|---------|-------|-------|--------|---------|------------|
+| P1  | 2       | 1     | 2     | 3      | 0       | 1          |
+| P2  | 4       | 2     | 4     | 6      | 0       | 2          |
+| P3  | 6       | 3     | 6     | 9      | 0       | 3          |
+| P4  | 8       | 4     | 9     | 13     | 1       | 5          |
+| P5  | 10      | 5     | 13    | 18     | 3       | 8          |
 
 Average Waiting Time: 0.80
 Average Turnaround Time: 3.80
 
 ## Team Contributions
 
-| Member         | Role                        |
-|----------------|-----------------------------|
-| Owen Robert S. Magsayo | Java backend implementation |
-| Pantine B. Hernando| Java backend implementation & Web GUI |
+| Member                     | Roles & Responsibilities                                                                                                                                                                                              |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Pantine B. Hernando**    | - Led frontend design and implementation of Web GUI.<br>- Developed core backend logic for SRTF, RR, and MLFQ algorithms.<br>- Managed project structure and repository organization.                                      |
+| **Owen Robert S. Magsayo** | - Contributed to Java backend development, including FCFS and SJF algorithms.<br>- Helped develop JavaScript logic in the Web GUI.<br>- Assisted in debugging and integration of frontend with backend. |
+
