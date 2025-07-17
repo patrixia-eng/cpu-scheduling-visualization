@@ -9,13 +9,21 @@ package com.sos.cpuschedulingvisualization;
  * @author MAGSAYO_HERNANDO
  */
 class Process {
-    int id, arrivalTime, burstTime, completionTime, turnaroundTime, waitingTime, responseTime, remainingTime;
-    boolean started = false;
+    public final int pid;
+    public int arrivalTime;
+    public int burstTime;
+    public int completionTime;
+    public int turnaroundTime;
+    public int waitingTime;
+    public int responseTime;
+    public int startTime;
+    public int remainingTime;
 
-    public Process(int id, int arrivalTime, int burstTime) {
-        this.id = id;
+    public Process(int pid, int arrivalTime, int burstTime) {
+        this.pid = pid;
         this.arrivalTime = arrivalTime;
         this.burstTime = burstTime;
         this.remainingTime = burstTime;
+        this.startTime = -1;
     }
 }
