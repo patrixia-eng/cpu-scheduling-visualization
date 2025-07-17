@@ -40,14 +40,17 @@ public class SRTFScheduler {
                     }
                 }
             }
+
             if (idx != -1) {
                 Process current = processes.get(idx);
                 if (current.startTime == -1) {
                     current.startTime = time;
                     current.responseTime = time - current.arrivalTime;
                 }
+
                 current.remainingTime--;
                 gantt.append(" P").append(current.pid).append(" |");
+
                 if (current.remainingTime == 0) {
                     current.completionTime = time + 1;
                     completed++;
@@ -67,11 +70,13 @@ public class SRTFScheduler {
             totalTAT += p.turnaroundTime;
             totalWT += p.waitingTime;
             totalRT += p.responseTime;
+
             System.out.printf("P%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
                     p.pid, p.arrivalTime, p.burstTime,
                     p.completionTime, p.turnaroundTime,
                     p.waitingTime, p.responseTime);
         }
+
         System.out.printf("\nAverage Turnaround Time: %.2f\n", totalTAT / n);
         System.out.printf("Average Waiting Time   : %.2f\n", totalWT / n);
         System.out.printf("Average Response Time  : %.2f\n", totalRT / n);
