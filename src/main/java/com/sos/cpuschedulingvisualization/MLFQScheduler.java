@@ -8,7 +8,10 @@ package com.sos.cpuschedulingvisualization;
  *
  * @author Nitro-5
  */
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 public class MLFQScheduler {
       public static void runMLFQ(List<Process> processList, int[] quantums, int[] allotments) {
         int time = 0;
@@ -100,5 +103,5 @@ public class MLFQScheduler {
         System.out.printf("Average Waiting Time   : %.2f\n", totalWT / n);
         System.out.printf("Average Response Time  : %.2f\n", totalRT / n);
     }
-  
 }
+
