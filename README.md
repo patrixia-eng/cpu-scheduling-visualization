@@ -6,7 +6,7 @@
 
 This project is a simulation and visualization tool for various **CPU scheduling algorithms**, built as part of an Operating Systems course requirement. The goal is to help students and users understand how different CPU scheduling policies work by providing a visual representation of process executions, time calculations, and comparisons.
 
-Developed with **Java (backend)** and **JavaScript HTML (frontend)** version.
+Developed with **Java (Terminal/console)** and **JavaScript HTML (GUI)** version.
 
 ---
 
