@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let arrival = parseInt(rows[i].querySelector('.arrival').value);
             let burst = parseInt(rows[i].querySelector('.burst').value);
             if (!pid || isNaN(arrival) || arrival < 0 || isNaN(burst) || burst < 1) {
-                showError(Invalid input for process ${i+1});
+                showError(`Invalid input for process ${i+1}`);
                 return;
             }
             if (ids.has(pid)) {
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 quantums.push(q);
                 allotments.push(a);
             }
-            quantums.push(9999);
+            quantums.push(9999); // FCFS for last queue
             result = runMLFQ(processList, quantums, allotments);
         }
         renderGantt(result.gantt);
@@ -110,15 +110,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function showError(msg) {
-        document.getElementById('ganttChart').innerHTML = <span style="color:red;">${msg}</span>;
+        document.getElementById('ganttChart').innerHTML = `<span style="color:red;">${msg}</span>`;
         document.getElementById('metrics').innerHTML = '';
     }
 
+    // Pink/pastel color palette for bars
     const ganttColors = [
         '#e75480', '#ffb6d5', '#ff69b4', '#ff8ecf', '#ffb3de', '#ff6f91', '#ffb7c5', '#f88379', '#f7cac9', '#f49ac2', '#f3c6e0', '#fbaed2', '#f7a1c4', '#f9c6d3', '#f6abb6', '#f7b7a3'
     ];
 
     function getBarColor(pid) {
+        // Assign a color based on PID string hash
         let hash = 0;
         for (let i = 0; i < pid.length; i++) hash = pid.charCodeAt(i) + ((hash << 5) - hash);
         return ganttColors[Math.abs(hash) % ganttColors.length];
@@ -133,15 +135,17 @@ document.addEventListener('DOMContentLoaded', function() {
             sequenceDiv.innerHTML = '';
             return;
         }
-        const sequence = gantt.map(bar => P${bar.pid}).join(' | ');
-        sequenceDiv.innerHTML = | ${sequence} |;
+        // Show sequence as | P1 | P2 | ... |
+        const sequence = gantt.map(bar => `P${bar.pid}`).join(' | ');
+        sequenceDiv.innerHTML = `| ${sequence} |`;
+        // Animate bars one by one
         let i = 0;
         function animateBar() {
             if (i >= gantt.length) return;
             let bar = gantt[i];
             let barDiv = document.createElement('div');
             barDiv.className = 'gantt-bar';
-            barDiv.innerText = P${bar.pid};
+            barDiv.innerText = `P${bar.pid}`;
             let color = getBarColor(bar.pid);
             barDiv.style.setProperty('--bar-color', color);
             barDiv.setAttribute('data-color', '1');
@@ -150,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
             chart.appendChild(barDiv);
             chart.scrollLeft = chart.scrollWidth;
             i++;
-            setTimeout(animateBar, 400);
+            setTimeout(animateBar, 400); // Adjust speed as needed
         }
         animateBar();
     }
@@ -161,19 +165,22 @@ document.addEventListener('DOMContentLoaded', function() {
             metricsDiv.innerHTML = '<em>No metrics available.</em>';
             return;
         }
+        // Sort by PID (assuming PID is a string or number, and PIDs are like 1, 2, 3...)
         const sorted = [...metrics.details].sort((a, b) => {
+            // If PID is like 'P1', 'P2', remove 'P' and compare as numbers
             let getNum = pid => typeof pid === 'string' && pid[0].toUpperCase() === 'P' ? parseInt(pid.slice(1)) : parseInt(pid);
             return getNum(a.pid) - getNum(b.pid);
         });
         let html = '<table><thead><tr><th>PID</th><th>Arrival</th><th>Burst</th><th>Start</th><th>Finish</th><th>Waiting</th><th>Turnaround</th><th>Response</th></tr></thead><tbody>';
         sorted.forEach(m => {
-            html += <tr><td>${m.pid}</td><td>${m.arrival}</td><td>${m.burst}</td><td>${m.start}</td><td>${m.finish}</td><td>${m.waiting}</td><td>${m.turnaround}</td><td>${m.response}</td></tr>;
+            html += `<tr><td>${m.pid}</td><td>${m.arrival}</td><td>${m.burst}</td><td>${m.start}</td><td>${m.finish}</td><td>${m.waiting}</td><td>${m.turnaround}</td><td>${m.response}</td></tr>`;
         });
         html += '</tbody></table>';
-        html += <div style="margin-top:10px;font-size:25px;"><strong>Average Waiting Time:</strong> ${metrics.avgWaiting.toFixed(2)}<br><strong>Average Turnaround Time:</strong> ${metrics.avgTurnaround.toFixed(2)}<br><strong>Average Response Time:</strong> ${metrics.avgResponse.toFixed(2)}</div>;
+        html += `<div style="margin-top:10px;font-size:25px;"><strong>Average Waiting Time:</strong> ${metrics.avgWaiting.toFixed(2)}<br><strong>Average Turnaround Time:</strong> ${metrics.avgTurnaround.toFixed(2)}<br><strong>Average Response Time:</strong> ${metrics.avgResponse.toFixed(2)}</div>`;
         metricsDiv.innerHTML = html;
     }
 
+    // --- SchedulingI Algorithm Implementations ---
     function runFCFS(processes) {
         processes = [...processes].map(p => ({...p})).sort((a, b) => a.arrival - b.arrival);
         let time = 0, gantt = [], metrics = {details: [], avgWaiting: 0, avgTurnaround: 0, avgResponse: 0};
@@ -267,6 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             time++;
         }
+        // Build Gantt bars
         let bars = [];
         let prev = timeline[0], start = 0;
         for (let t = 1; t <= timeline.length; t++) {
@@ -336,6 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 queue.push(idx);
             }
         }
+        // Build Gantt bars
         let bars = [];
         let prev = timeline[0], start = 0;
         for (let t = 1; t <= timeline.length; t++) {
@@ -364,6 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function runMLFQ(processes, quantums, allotments) {
+        // 4 queues: Q0-Q2 RR, Q3 FCFS
         let n = processes.length, completed = 0, time = 0, gantt = [], metrics = {details: [], avgWaiting: 0, avgTurnaround: 0, avgResponse: 0};
         let procs = processes.map(p => ({...p, remaining: p.burst, start: null, finish: null, response: null, level: 0, allot: 0}));
         let queues = [[], [], [], []];
@@ -420,6 +430,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 queues[currentLevel].push(current);
             }
         }
+        // Build Gantt bars
         let bars = [];
         let prev = timeline[0], start = 0;
         for (let t = 1; t <= timeline.length; t++) {
@@ -449,4 +460,4 @@ document.addEventListener('DOMContentLoaded', function() {
         metrics.avgResponse = totalResponse / n;
         return {gantt, metrics};
     }
-})
+});
