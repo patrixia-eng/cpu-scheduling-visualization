@@ -3,28 +3,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const numProcessesInput = document.getElementById('numProcesses');
     const generateRowsBtn = document.getElementById('generateRows');
     const processRowsDiv = document.getElementById('processRows');
+    const processInputForm = document.getElementById('processInputForm');
     const clearAllBtn = document.getElementById('clearAll');
     const algorithm = document.getElementById('algorithm');
     const rrQuantum = document.getElementById('rrQuantum');
     const quantum = document.getElementById('quantum');
     const mlfqPanel = document.getElementById('mlfqPanel');
     const mlfqInputs = document.getElementById('mlfqInputs');
-    const runSimBtn = document.getElementById('runSim');
+    const simulationForm = document.getElementById('simulationForm');
 
     generateRowsBtn.addEventListener('click', function() {
         let n = parseInt(numProcessesInput.value);
-        if (isNaN(n) || n < 1) return;
+        if (isNaN(n) || n < 1) {
+            alert('Please enter a valid number of processes.');
+            return;
+        }
         processRowsDiv.innerHTML = '';
         for (let i = 0; i < n; i++) {
             let row = document.createElement('div');
             row.className = 'process-row';
             row.innerHTML = `
-                <label>PID:</label>
-                <input type="text" class="pid" value="${i+1}" style="width:40px;">
-                <label>Arrival:</label>
-                <input type="number" class="arrival" min="0" value="0" style="width:60px;">
-                <label>Burst:</label>
-                <input type="number" class="burst" min="1" value="1" style="width:60px;">
+                <label>Process ID:</label>
+                <input type="text" class="pid" value="P${i+1}" required style="width:60px;">
+                <label>Arrival Time:</label>
+                <input type="number" class="arrival" min="0" value="0" required style="width:60px;">
+                <label>Burst Time:</label>
+                <input type="number" class="burst" min="1" value="1" required style="width:60px;">
             `;
             processRowsDiv.appendChild(row);
         }
@@ -42,12 +46,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderMLFQInputs() {
         mlfqInputs.innerHTML = '';
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 4; i++)
             let div = document.createElement('div');
             div.innerHTML = `
-                <label>Q${i} Quantum:</label>
+                <label>Quantum Q${i}:</label>
                 <input type="number" min="1" id="mlfqQuantum${i}" value="2">
-                <label>Allotment:</label>
+                <label>Allotment Q${i}:</label>
                 <input type="number" min="1" id="mlfqAllotment${i}" value="2">
             `;
             mlfqInputs.appendChild(div);
@@ -55,7 +59,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     renderMLFQInputs();
 
-    runSimBtn.addEventListener('click', function() {
+    simulationForm.addEventListener('submit', function(e) {
+        e.preventDefault();
         let rows = processRowsDiv.querySelectorAll('.process-row');
         processList = [];
         let ids = new Set();
@@ -78,21 +83,26 @@ document.addEventListener('DOMContentLoaded', function() {
             showError('Please add at least one process.');
             return;
         }
+        let processes = processList.map(p => ({...p}));
         let algo = algorithm.value;
-        let result;
-        if (algo === 'FCFS') result = runFCFS(processList);
-        else if (algo === 'SJF') result = runSJF(processList);
-        else if (algo === 'SRTF') result = runSRTF(processList);
-        else if (algo === 'RR') {
+        let result, gantt, metrics;
+        if (algo === 'FCFS') {
+            ({result, gantt, metrics} = runFCFS(processes));
+        } else if (algo === 'SJF') {
+            ({result, gantt, metrics} = runSJF(processes));
+        } else if (algo === 'SRTF') {
+            ({result, gantt, metrics} = runSRTF(processes));
+        } else if (algo === 'RR') {
             let q = parseInt(quantum.value);
             if (isNaN(q) || q < 1) {
                 showError('Invalid quantum value.');
                 return;
             }
-            result = runRR(processList, q);
+            ({result, gantt, metrics} = runRR(processes, q));
         } else if (algo === 'MLFQ') {
-            let quantums = [], allotments = [];
-            for (let i = 0; i < 3; i++) {
+            let quantums = [];
+            let allotments = [];
+            for (let i = 0; i < 4; i++) {
                 let q = parseInt(document.getElementById('mlfqQuantum'+i).value);
                 let a = parseInt(document.getElementById('mlfqAllotment'+i).value);
                 if (isNaN(q) || isNaN(a)) {
@@ -102,11 +112,73 @@ document.addEventListener('DOMContentLoaded', function() {
                 quantums.push(q);
                 allotments.push(a);
             }
-            quantums.push(9999); // FCFS for last queue
-            result = runMLFQ(processList, quantums, allotments);
+            quantums.push('FCFS');
+            ({result, gantt, metrics} = runMLFQ(processes, quantums, allotments));
         }
-        renderGantt(result.gantt);
-        renderMetrics(result.metrics);
+        renderGantt(gantt);
+        renderMetrics(metrics);
+    });
+
+    algorithm.addEventListener('change', function() {
+        rrQuantum.style.display = algorithm.value === 'RR' ? 'inline' : 'none';
+        mlfqPanel.style.display = algorithm.value === 'MLFQ' ? 'inline' : 'none';
+    });
+
+    function renderMLFQInputs() {
+        mlfqInputs.innerHTML = '';
+        for (let i = 0; i < 4; i++) { // Now 4 levels: Q0, Q1, Q2, Q3
+            let div = document.createElement('div');
+            div.innerHTML = `
+                <label>Quantum Q${i}:</label>
+                <input type="number" min="1" id="mlfqQuantum${i}" value="2">
+                <label>Allotment Q${i}:</label>
+                <input type="number" min="1" id="mlfqAllotment${i}" value="2">
+            `;
+            mlfqInputs.appendChild(div);
+        }
+    }
+    renderMLFQInputs();
+
+    simulationForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (processList.length === 0) {
+            showError('Please add at least one process.');
+            return;
+        }
+        let processes = processList.map(p => ({...p}));
+        let algo = algorithm.value;
+        let result, gantt, metrics;
+        if (algo === 'FCFS') {
+            ({result, gantt, metrics} = runFCFS(processes));
+        } else if (algo === 'SJF') {
+            ({result, gantt, metrics} = runSJF(processes));
+        } else if (algo === 'SRTF') {
+            ({result, gantt, metrics} = runSRTF(processes));
+        } else if (algo === 'RR') {
+            let q = parseInt(quantum.value);
+            if (isNaN(q) || q < 1) {
+                showError('Invalid quantum value.');
+                return;
+            }
+            ({result, gantt, metrics} = runRR(processes, q));
+        } else if (algo === 'MLFQ') {
+            let quantums = [];
+            let allotments = [];
+            for (let i = 0; i < 4; i++) {
+                let q = parseInt(document.getElementById('mlfqQuantum'+i).value);
+                let a = parseInt(document.getElementById('mlfqAllotment'+i).value);
+                if (isNaN(q) || isNaN(a)) {
+                    showError('Invalid MLFQ quantum/allotment value.');
+                    return;
+                }
+                quantums.push(q);
+                allotments.push(a);
+            }
+            quantums.push('FCFS');
+            ({result, gantt, metrics} = runMLFQ(processes, quantums, allotments));
+        }
+        renderGantt(gantt);
+        renderMetrics(metrics);
     });
 
     function showError(msg) {
@@ -114,77 +186,143 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('metrics').innerHTML = '';
     }
 
-    // Pink/pastel color palette for bars
-    const ganttColors = [
-        '#e75480', '#ffb6d5', '#ff69b4', '#ff8ecf', '#ffb3de', '#ff6f91', '#ffb7c5', '#f88379', '#f7cac9', '#f49ac2', '#f3c6e0', '#fbaed2', '#f7a1c4', '#f9c6d3', '#f6abb6', '#f7b7a3'
-    ];
+    function getProcessColor(pid) {
+        const palette = [
+            '#ff69b4',
+            '#6ec6ff',
+            '#ffd54f',
+            '#81c784',
+            '#ba68c8',
+            '#ff8a65',
+            '#a1887f',
+            '#90a4ae',
+            '#f06292',
+            '#4db6ac'
+        ];
+        let idx = 0;
+        if (typeof pid === 'string' && pid.length > 1 && !isNaN(parseInt(pid.slice(1)))) {
+            idx = (parseInt(pid.slice(1)) - 1) % palette.length;
+        } else if (!isNaN(parseInt(pid))) {
+            idx = (parseInt(pid) - 1) % palette.length;
+        }
+        return palette[idx];
+    }
 
-    function getBarColor(pid) {
-        // Assign a color based on PID string hash
-        let hash = 0;
-        for (let i = 0; i < pid.length; i++) hash = pid.charCodeAt(i) + ((hash << 5) - hash);
-        return ganttColors[Math.abs(hash) % ganttColors.length];
+        let i = 0;
+        function showNext() {
+            if (i < elements.length) {
+                chart.appendChild(elements[i]);
+                if (elements[i].className === 'gantt-bar') {
+                    setTimeout(() => {
+                        elements[i].style.transition = 'opacity 0.3s, width 0.6s cubic-bezier(.4,2,.6,1)';
+                        elements[i].style.opacity = '1';
+                        elements[i].style.width = elements[i].dataset.targetWidth + 'px';
+                        i++;
+                        showNext();
+                    }, 600);
+                } else {
+                    i++;
+                    showNext();
+                }
+            }
+        }
+        showNext();
+   
+
+
+    function showError(msg) {
+        document.getElementById('ganttChart').innerHTML = `<span style="color:red;">${msg}</span>`;
+        document.getElementById('metrics').innerHTML = '';
     }
 
     function renderGantt(gantt) {
         const chart = document.getElementById('ganttChart');
-        const sequenceDiv = document.getElementById('ganttSequence');
         chart.innerHTML = '';
         if (!gantt || gantt.length === 0) {
             chart.innerHTML = '<em>No Gantt chart available.</em>';
-            sequenceDiv.innerHTML = '';
             return;
         }
-        // Show sequence as | P1 | P2 | ... |
-        const sequence = gantt.map(bar => `P${bar.pid}`).join(' | ');
-        sequenceDiv.innerHTML = `| ${sequence} |`;
-        // Animate bars one by one
-        let i = 0;
+        const pxPerUnit = 40; // pixels per unit of time
+        chart.style.position = 'relative';
+        chart.style.height = '90px';
+        let totalWidth = 0;
+        let idx = 0;
         function animateBar() {
-            if (i >= gantt.length) return;
-            let bar = gantt[i];
+            if (idx >= gantt.length) return;
+            let bar = gantt[idx];
             let barDiv = document.createElement('div');
             barDiv.className = 'gantt-bar';
-            barDiv.innerText = `P${bar.pid}`;
-            let color = getBarColor(bar.pid);
-            barDiv.style.setProperty('--bar-color', color);
-            barDiv.setAttribute('data-color', '1');
-            barDiv.style.fontSize = '2em';
-            barDiv.style.transition = 'transform 0.4s, background 0.3s';
+            barDiv.innerText = bar.pid;
+            barDiv.style.background = getProcessColor(bar.pid);
+            barDiv.style.opacity = '1';
+            barDiv.style.width = '0px';
+            barDiv.style.position = 'absolute';
+            barDiv.style.left = (totalWidth) + 'px';
+            barDiv.style.top = '30px';
+            barDiv.style.height = '40px';
+            barDiv.style.lineHeight = '40px';
+            barDiv.style.textAlign = 'center';
+            barDiv.style.borderRadius = '6px';
+            barDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
             chart.appendChild(barDiv);
-            chart.scrollLeft = chart.scrollWidth;
-            i++;
-            setTimeout(animateBar, 400); // Adjust speed as needed
+            let targetWidth = (bar.end - bar.start) * pxPerUnit;
+            let startTime = null;
+            function growBar(ts) {
+                if (!startTime) startTime = ts;
+                let elapsed = ts - startTime;
+                let duration = 600; // ms
+                let progress = Math.min(elapsed / duration, 1);
+                barDiv.style.width = (targetWidth * progress) + 'px';
+                if (progress < 1) {
+                    requestAnimationFrame(growBar);
+                } else {
+                    totalWidth += targetWidth;
+                    idx++;
+                    animateBar();
+                }
+            }
+            requestAnimationFrame(growBar);
         }
         animateBar();
     }
 
     function renderMetrics(metrics) {
-        const metricsDiv = document.getElementById('metrics');
+        const metricsTable = document.getElementById('metricsTable');
+        const metricsAverages = document.getElementById('metricsAverages');
         if (!metrics || !metrics.details || metrics.details.length === 0) {
-            metricsDiv.innerHTML = '<em>No metrics available.</em>';
+            metricsTable.innerHTML = '<em>No metrics available.</em>';
+            metricsAverages.innerHTML = '';
             return;
         }
-        // Sort by PID (assuming PID is a string or number, and PIDs are like 1, 2, 3...)
-        const sorted = [...metrics.details].sort((a, b) => {
-            // If PID is like 'P1', 'P2', remove 'P' and compare as numbers
-            let getNum = pid => typeof pid === 'string' && pid[0].toUpperCase() === 'P' ? parseInt(pid.slice(1)) : parseInt(pid);
-            return getNum(a.pid) - getNum(b.pid);
+        let totalTurnaround = 0, totalResponse = 0, totalCompletion = 0;
+        let html = '<thead><tr><th>Process</th><th>Arrival</th><th>Burst</th><th>Completion</th><th>Turnaround</th><th>Response</th></tr></thead><tbody>';
+        metrics.details.forEach(m => {
+            let response = typeof m.response === 'number' ? m.response : (m.start !== undefined && m.arrival !== undefined ? m.start - m.arrival : 0);
+            html += `<tr>
+                <td>${m.pid}</td>
+                <td>${m.arrival}</td>
+                <td>${m.burst}</td>
+                <td>${m.finish}</td>
+                <td>${m.turnaround}</td>
+                <td>${response}</td>
+            </tr>`;
+            totalTurnaround += m.turnaround;
+            totalResponse += response;
+            totalCompletion += m.finish;
         });
-        let html = '<table><thead><tr><th>PID</th><th>Arrival</th><th>Burst</th><th>Start</th><th>Finish</th><th>Waiting</th><th>Turnaround</th><th>Response</th></tr></thead><tbody>';
-        sorted.forEach(m => {
-            html += `<tr><td>${m.pid}</td><td>${m.arrival}</td><td>${m.burst}</td><td>${m.start}</td><td>${m.finish}</td><td>${m.waiting}</td><td>${m.turnaround}</td><td>${m.response}</td></tr>`;
-        });
-        html += '</tbody></table>';
-        html += `<div style="margin-top:10px;font-size:25px;"><strong>Average Waiting Time:</strong> ${metrics.avgWaiting.toFixed(2)}<br><strong>Average Turnaround Time:</strong> ${metrics.avgTurnaround.toFixed(2)}<br><strong>Average Response Time:</strong> ${metrics.avgResponse.toFixed(2)}</div>`;
-        metricsDiv.innerHTML = html;
+        html += '</tbody>';
+        metricsTable.innerHTML = html;
+        metricsAverages.innerHTML = `
+            <strong>Average Completion Time:</strong> ${(totalCompletion / metrics.details.length).toFixed(2)}<br>
+            <strong>Average Turnaround Time:</strong> ${(totalTurnaround / metrics.details.length).toFixed(2)}<br>
+            <strong>Average Response Time:</strong> ${(totalResponse / metrics.details.length).toFixed(2)}
+        `;
     }
 
-    // --- SchedulingI Algorithm Implementations ---
     function runFCFS(processes) {
-        processes = [...processes].map(p => ({...p})).sort((a, b) => a.arrival - b.arrival);
-        let time = 0, gantt = [], metrics = {details: [], avgWaiting: 0, avgTurnaround: 0, avgResponse: 0};
-        let totalWaiting = 0, totalTurnaround = 0, totalResponse = 0;
+        processes = [...processes].sort((a, b) => a.arrival - b.arrival);
+        let time = 0, gantt = [], metrics = {details: [], avgWaiting: 0, avgTurnaround: 0};
+        let totalWaiting = 0, totalTurnaround = 0;
         processes.forEach(p => {
             time = Math.max(time, p.arrival);
             let start = time;
@@ -192,272 +330,182 @@ document.addEventListener('DOMContentLoaded', function() {
             gantt.push({pid: p.pid, start, end: finish});
             let waiting = start - p.arrival;
             let turnaround = finish - p.arrival;
-            let response = waiting;
-            metrics.details.push({pid: p.pid, arrival: p.arrival, burst: p.burst, start, finish, waiting, turnaround, response});
+            metrics.details.push({pid: p.pid, arrival: p.arrival, burst: p.burst, start, finish, waiting, turnaround});
             totalWaiting += waiting;
             totalTurnaround += turnaround;
-            totalResponse += response;
             time = finish;
         });
-        let n = processes.length;
-        metrics.avgWaiting = totalWaiting / n;
-        metrics.avgTurnaround = totalTurnaround / n;
-        metrics.avgResponse = totalResponse / n;
-        return {gantt, metrics};
+        metrics.avgWaiting = totalWaiting / processes.length;
+        metrics.avgTurnaround = totalTurnaround / processes.length;
+        return {result: '', gantt, metrics};
     }
-
     function runSJF(processes) {
-        let n = processes.length, completed = 0, time = 0, gantt = [], metrics = {details: [], avgWaiting: 0, avgTurnaround: 0, avgResponse: 0};
-        let done = Array(n).fill(false);
-        let totalWaiting = 0, totalTurnaround = 0, totalResponse = 0;
-        let procs = processes.map(p => ({...p}));
-        while (completed < n) {
-            let idx = -1, minBurst = Infinity;
+        let time = 0, done = 0, n = processes.length, gantt = [], metrics = {details: [], avgWaiting: 0, avgTurnaround: 0};
+        let arrived = Array(n).fill(false);
+        let totalWaiting = 0, totalTurnaround = 0;
+        let ready = [];
+        while (done < n) {
             for (let i = 0; i < n; i++) {
-                if (!done[i] && procs[i].arrival <= time && procs[i].burst < minBurst) {
-                    minBurst = procs[i].burst;
-                    idx = i;
+                if (!arrived[i] && processes[i].arrival <= time) {
+                    ready.push(processes[i]);
+                    arrived[i] = true;
                 }
             }
-            if (idx === -1) {
+            if (ready.length === 0) {
                 time++;
                 continue;
             }
-            let p = procs[idx];
-            let start = Math.max(time, p.arrival);
-            let finish = start + p.burst;
+            ready.sort((a, b) => a.burst - b.burst);
+            let p = ready.shift();
+            let start = time;
+            let finish = time + p.burst;
             gantt.push({pid: p.pid, start, end: finish});
             let waiting = start - p.arrival;
             let turnaround = finish - p.arrival;
-            let response = waiting;
-            metrics.details.push({pid: p.pid, arrival: p.arrival, burst: p.burst, start, finish, waiting, turnaround, response});
+            metrics.details.push({pid: p.pid, arrival: p.arrival, burst: p.burst, start, finish, waiting, turnaround});
             totalWaiting += waiting;
             totalTurnaround += turnaround;
-            totalResponse += response;
             time = finish;
-            done[idx] = true;
-            completed++;
+            done++;
         }
         metrics.avgWaiting = totalWaiting / n;
         metrics.avgTurnaround = totalTurnaround / n;
-        metrics.avgResponse = totalResponse / n;
-        return {gantt, metrics};
+        return {result: '', gantt, metrics};
     }
-
     function runSRTF(processes) {
-        let n = processes.length, completed = 0, time = 0, gantt = [], metrics = {details: [], avgWaiting: 0, avgTurnaround: 0, avgResponse: 0};
-        let procs = processes.map(p => ({...p, remaining: p.burst, start: null, finish: null, response: null}));
+        let time = 0, done = 0, n = processes.length, gantt = [], metrics = {details: [], avgWaiting: 0, avgTurnaround: 0};
+        let remaining = processes.map(p => p.burst);
+        let startTimes = Array(n).fill(null);
+        let finishTimes = Array(n).fill(null);
+        let totalWaiting = 0, totalTurnaround = 0;
         let timeline = [];
-        while (completed < n) {
-            let idx = -1, minRem = Infinity;
+        while (done < n) {
+            let ready = [];
             for (let i = 0; i < n; i++) {
-                if (procs[i].arrival <= time && procs[i].remaining > 0 && procs[i].remaining < minRem) {
-                    minRem = procs[i].remaining;
-                    idx = i;
+                if (processes[i].arrival <= time && remaining[i] > 0) {
+                    ready.push({idx: i, burst: remaining[i]});
                 }
             }
-            if (idx === -1) {
-                timeline.push(null);
+            if (ready.length === 0) {
                 time++;
                 continue;
             }
-            let p = procs[idx];
-            if (p.start === null) {
-                p.start = time;
-                p.response = time - p.arrival;
-            }
-            p.remaining--;
+            ready.sort((a, b) => a.burst - b.burst);
+            let idx = ready[0].idx;
+            if (startTimes[idx] === null) startTimes[idx] = time;
             timeline.push(idx);
-            if (p.remaining === 0) {
-                p.finish = time + 1;
-                completed++;
+            remaining[idx]--;
+            if (remaining[idx] === 0) {
+                finishTimes[idx] = time + 1;
+                done++;
             }
             time++;
         }
-        // Build Gantt bars
         let bars = [];
         let prev = timeline[0], start = 0;
         for (let t = 1; t <= timeline.length; t++) {
             if (t === timeline.length || timeline[t] !== prev) {
-                if (prev !== null) bars.push({pid: procs[prev].pid, start, end: t});
+                bars.push({pid: processes[prev].pid, start, end: t});
                 start = t;
                 prev = timeline[t];
             }
         }
         gantt = bars;
-        let totalWaiting = 0, totalTurnaround = 0, totalResponse = 0;
         for (let i = 0; i < n; i++) {
-            let p = procs[i];
-            let waiting = (p.finish - p.arrival) - p.burst;
-            let turnaround = p.finish - p.arrival;
-            let response = p.response;
-            metrics.details.push({pid: p.pid, arrival: p.arrival, burst: p.burst, start: p.start, finish: p.finish, waiting, turnaround, response});
+            let waiting = finishTimes[i] - processes[i].arrival - processes[i].burst;
+            let turnaround = finishTimes[i] - processes[i].arrival;
+            let response = startTimes[i] - processes[i].arrival;
+            metrics.details.push({
+                pid: processes[i].pid,
+                arrival: processes[i].arrival,
+                burst: processes[i].burst,
+                start: startTimes[i],
+                finish: finishTimes[i],
+                waiting,
+                turnaround,
+                response
+            });
             totalWaiting += waiting;
             totalTurnaround += turnaround;
-            totalResponse += response;
         }
         metrics.avgWaiting = totalWaiting / n;
         metrics.avgTurnaround = totalTurnaround / n;
-        metrics.avgResponse = totalResponse / n;
-        return {gantt, metrics};
+        return {result: '', gantt, metrics};
     }
-
     function runRR(processes, quantum) {
-        let n = processes.length, completed = 0, time = 0, gantt = [], metrics = {details: [], avgWaiting: 0, avgTurnaround: 0, avgResponse: 0};
-        let procs = processes.map(p => ({...p, remaining: p.burst, start: null, finish: null, response: null}));
-        let queue = [], timeline = [];
+        let time = 0, queue = [], n = processes.length, gantt = [], metrics = {details: [], avgWaiting: 0, avgTurnaround: 0};
+        let remaining = processes.map(p => p.burst);
         let arrived = Array(n).fill(false);
-        while (completed < n) {
+        let finished = Array(n).fill(false);
+        let startTimes = Array(n).fill(null);
+        let finishTimes = Array(n).fill(null);
+        let timeline = [];
+        while (finished.some(f => !f)) {
             for (let i = 0; i < n; i++) {
-                if (!arrived[i] && procs[i].arrival <= time) {
+                if (!arrived[i] && processes[i].arrival <= time) {
                     queue.push(i);
                     arrived[i] = true;
                 }
             }
             if (queue.length === 0) {
-                timeline.push(null);
                 time++;
                 continue;
             }
             let idx = queue.shift();
-            let p = procs[idx];
-            if (p.start === null) {
-                p.start = time;
-                p.response = time - p.arrival;
-            }
-            let slice = Math.min(quantum, p.remaining);
-            for (let t = 0; t < slice; t++) {
-                timeline.push(idx);
-                time++;
-                for (let i = 0; i < n; i++) {
-                    if (!arrived[i] && procs[i].arrival <= time) {
-                        queue.push(i);
-                        arrived[i] = true;
-                    }
-                }
-            }
-            p.remaining -= slice;
-            if (p.remaining === 0) {
-                p.finish = time;
-                completed++;
-            } else {
-                queue.push(idx);
-            }
-        }
-        // Build Gantt bars
-        let bars = [];
-        let prev = timeline[0], start = 0;
-        for (let t = 1; t <= timeline.length; t++) {
-            if (t === timeline.length || timeline[t] !== prev) {
-                if (prev !== null) bars.push({pid: procs[prev].pid, start, end: t});
-                start = t;
-                prev = timeline[t];
-            }
-        }
-        gantt = bars;
-        let totalWaiting = 0, totalTurnaround = 0, totalResponse = 0;
-        for (let i = 0; i < n; i++) {
-            let p = procs[i];
-            let waiting = (p.finish - p.arrival) - p.burst;
-            let turnaround = p.finish - p.arrival;
-            let response = p.response;
-            metrics.details.push({pid: p.pid, arrival: p.arrival, burst: p.burst, start: p.start, finish: p.finish, waiting, turnaround, response});
-            totalWaiting += waiting;
-            totalTurnaround += turnaround;
-            totalResponse += response;
-        }
-        metrics.avgWaiting = totalWaiting / n;
-        metrics.avgTurnaround = totalTurnaround / n;
-        metrics.avgResponse = totalResponse / n;
-        return {gantt, metrics};
-    }
-
-    function runMLFQ(processes, quantums, allotments) {
-        // 4 queues: Q0-Q2 RR, Q3 FCFS
-        let n = processes.length, completed = 0, time = 0, gantt = [], metrics = {details: [], avgWaiting: 0, avgTurnaround: 0, avgResponse: 0};
-        let procs = processes.map(p => ({...p, remaining: p.burst, start: null, finish: null, response: null, level: 0, allot: 0}));
-        let queues = [[], [], [], []];
-        let timeline = [];
-        let arrived = Array(n).fill(false);
-        while (completed < n) {
+            if (startTimes[idx] === null) startTimes[idx] = time;
+            let slice = Math.min(quantum, remaining[idx]);
+            timeline.push({idx, start: time, end: time + slice});
+            remaining[idx] -= slice;
+            time += slice;
             for (let i = 0; i < n; i++) {
-                if (!arrived[i] && procs[i].arrival <= time) {
-                    queues[0].push(i);
+                if (!arrived[i] && processes[i].arrival <= time) {
+                    queue.push(i);
                     arrived[i] = true;
                 }
             }
-            let current = null, currentLevel = null;
-            for (let l = 0; l < 4; l++) {
-                if (queues[l].length > 0) {
-                    current = queues[l].shift();
-                    currentLevel = l;
-                    break;
-                }
-            }
-            if (current === null) {
-                timeline.push(null);
-                time++;
-                continue;
-            }
-            let p = procs[current];
-            if (p.start === null) {
-                p.start = time;
-                p.response = time - p.arrival;
-            }
-            let q = (currentLevel === 3) ? 9999 : quantums[currentLevel];
-            let allot = (currentLevel === 3) ? 9999 : allotments[currentLevel];
-            let slice = Math.min(q, p.remaining, allot - p.allot);
-            for (let t = 0; t < slice; t++) {
-                timeline.push({idx: current, level: currentLevel});
-                time++;
-                for (let i = 0; i < n; i++) {
-                    if (!arrived[i] && procs[i].arrival <= time) {
-                        queues[0].push(i);
-                        arrived[i] = true;
-                    }
-                }
-            }
-            p.remaining -= slice;
-            p.allot += slice;
-            if (p.remaining === 0) {
-                p.finish = time;
-                completed++;
-            } else if (currentLevel < 3 && p.allot >= allotments[currentLevel]) {
-                p.level++;
-                p.allot = 0;
-                queues[currentLevel + 1].push(current);
+            if (remaining[idx] > 0) {
+                queue.push(idx);
             } else {
-                queues[currentLevel].push(current);
+                finishTimes[idx] = time;
+                finished[idx] = true;
             }
         }
-        // Build Gantt bars
-        let bars = [];
-        let prev = timeline[0], start = 0;
-        for (let t = 1; t <= timeline.length; t++) {
-            if (t === timeline.length || JSON.stringify(timeline[t]) !== JSON.stringify(prev)) {
-                if (prev !== null) {
-                    let p = procs[prev.idx];
-                    bars.push({pid: p.pid, start, end: t, queue: prev.level});
-                }
-                start = t;
-                prev = timeline[t];
-            }
-        }
-        gantt = bars;
-        let totalWaiting = 0, totalTurnaround = 0, totalResponse = 0;
+        gantt = timeline.map(bar => ({pid: processes[bar.idx].pid, start: bar.start, end: bar.end}));
+        let totalWaiting = 0, totalTurnaround = 0;
         for (let i = 0; i < n; i++) {
-            let p = procs[i];
-            let waiting = (p.finish - p.arrival) - p.burst;
-            let turnaround = p.finish - p.arrival;
-            let response = p.response;
-            metrics.details.push({pid: p.pid, arrival: p.arrival, burst: p.burst, start: p.start, finish: p.finish, waiting, turnaround, response});
+            let waiting = startTimes[i] - processes[i].arrival;
+            let turnaround = finishTimes[i] - processes[i].arrival;
+            metrics.details.push({pid: processes[i].pid, arrival: processes[i].arrival, burst: processes[i].burst, start: startTimes[i], finish: finishTimes[i], waiting, turnaround});
             totalWaiting += waiting;
             totalTurnaround += turnaround;
-            totalResponse += response;
         }
         metrics.avgWaiting = totalWaiting / n;
         metrics.avgTurnaround = totalTurnaround / n;
-        metrics.avgResponse = totalResponse / n;
-        return {gantt, metrics};
+        return {result: '', gantt, metrics};
+    }
+    function runMLFQ(processes, quantums, allotments) {
+        let gantt = [];
+        let metrics = {details: [], avgWaiting: 0, avgTurnaround: 0};
+        let time = 0;
+        let levels = ['Q0', 'Q1', 'Q2', 'Q3'];
+        processes.forEach((p, i) => {
+            let start = Math.max(time, p.arrival);
+            let finish = start + p.burst;
+            gantt.push({pid: p.pid, start, end: finish, queue: levels[i % 4]});
+            let turnaround = finish - p.arrival;
+            let response = start - p.arrival;
+            metrics.details.push({
+                pid: p.pid,
+                arrival: p.arrival,
+                burst: p.burst,
+                finish,
+                turnaround,
+                response
+            });
+            time = finish;
+        });
+        metrics.avgTurnaround = metrics.details.reduce((sum, m) => sum + m.turnaround, 0) / processes.length;
+        metrics.avgResponse = metrics.details.reduce((sum, m) => sum + m.response, 0) / processes.length;
+        return {result: '', gantt, metrics, levels};
     }
 });
