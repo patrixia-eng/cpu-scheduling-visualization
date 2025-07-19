@@ -16,7 +16,7 @@ Developed with **Java (Terminal/console)** and **JavaScript HTML (GUI)** version
 2. **Shortest Job First (SJF)** – Non-preemptive
 3. **Shortest Remaining Time First (SRTF)** – Preemptive
 4. **Round Robin (RR)** – Preemptive with configurable time quantum
-5. **Multilevel Feedback Queue (MLFQ)** – Preemptive, with 4 queues and configurable time quantums
+5. **Multilevel Feedback Queue (MLFQ)** – Preemptive, with configurable time quantums
 
 ---
 
