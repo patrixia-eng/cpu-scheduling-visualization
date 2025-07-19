@@ -24,7 +24,7 @@ Developed with **Java (Terminal/console)** and **JavaScript HTML (GUI)** version
 
 ### Web GUI
 
-1. Open `index.html` in your browser.
+1. Open `index.html` in browser.
 2. Enter number of processes.
 3. Fill in **Process ID**, **Arrival Time**, and **Burst Time**.
 4. Select the desired scheduling algorithm.
@@ -33,7 +33,7 @@ Developed with **Java (Terminal/console)** and **JavaScript HTML (GUI)** version
 
 ### Console Version (Java)
 
-1. Open the Java project in NetBeans.
+1. Open the Java project in Visual Studio Code or NetBeans.
 2. Run `Main.java` or `CPUSchedulingVisualization.java`.
 3. Follow the prompts to:
    - Choose scheduling algorithm
@@ -59,24 +59,48 @@ Developed with **Java (Terminal/console)** and **JavaScript HTML (GUI)** version
 
 ---
 
-## Screenshots
-
-### SRTF Simulation Example
-<img width="1366" height="768" alt="SRTF" src="https://github.com/user-attachments/assets/48536ea7-81dd-41ff-a8ec-e9f28a99a789" />
+## Backend (Terminal/Console) Screenshots
 
 ### FCFS Simulation Example
-<img width="1366" height="768" alt="FCFS" src="https://github.com/user-attachments/assets/d4f1dd08-e26a-4369-b2e3-4a412430aa58" />
+![FCFS](https://github.com/user-attachments/assets/f12a8993-1e22-44c5-ad92-6991ca92aad4)
 
 ### SJF Simulation Example
-<img width="1366" height="768" alt="SJF" src="https://github.com/user-attachments/assets/27fd99ae-8e75-47ac-9779-7e842130bb79" />
+![SJF](https://github.com/user-attachments/assets/c615e7c5-691c-489d-8944-56e7f7266b00)
+
+### SRTF Simulation Example
+![SRTF](https://github.com/user-attachments/assets/9978a014-be59-408d-add0-688fe65ec287)
 
 ### RR Simulation Example
-<img width="1366" height="768" alt="RR" src="https://github.com/user-attachments/assets/0388e191-80ed-44cc-8b51-f1d6610fc786" />
+![RR](https://github.com/user-attachments/assets/7840e162-b9bc-446e-bc3f-22e998a1924f)
+![RR Results](https://github.com/user-attachments/assets/0e65b72b-7d8b-4aea-a2b7-f99f7824a6b7)
 
 ### MLFQ Simulation Example
-<img width="1366" height="768" alt="MLFQ2" src="https://github.com/user-attachments/assets/7649110f-d5d6-4be0-9ceb-26841dfb0d42" />
-<img width="1366" height="768" alt="MLFQ1" src="https://github.com/user-attachments/assets/c85cf7a1-81de-4f32-b17a-f0ba969d2b09" />
+![MLFQ](https://github.com/user-attachments/assets/1a81f9d3-3185-4ca7-880a-c430a2783c52)
+![MLFQ Results](https://github.com/user-attachments/assets/24d6a126-deec-434d-a705-93ca5b013784)
 
+---
+
+## Frontend GUI Screenshots
+
+### FCFS Simulation Example
+![FCFS](https://github.com/user-attachments/assets/81baf686-e98e-46f0-88d4-ffa0447fe418)
+![FCFS Result](https://github.com/user-attachments/assets/c6066aea-6ace-4092-bc2e-b62341b01b2b)
+
+### SJF Simulation Example
+![SJF](https://github.com/user-attachments/assets/532af708-f50a-461d-9e5d-e91dcf885ef3)
+![SJF Result](https://github.com/user-attachments/assets/060e50f7-c5c3-4767-bfb5-9846a90b33b7)
+
+### SRTF Simulation Example
+![SRTF](https://github.com/user-attachments/assets/9f842595-da9b-4595-ab5b-fc0d30ef524c)
+![SRTF Result](https://github.com/user-attachments/assets/e0e85816-bdb1-4225-9bc5-050b7750cec8)
+
+### RR Simulation Example
+![RR](https://github.com/user-attachments/assets/2a3be307-e289-4273-8243-0c033e423bfd)
+![RR Result](https://github.com/user-attachments/assets/5c8ffd1b-4929-4bbe-ab13-865bb5fc61cc)
+
+### MLFQ Simulation Example
+![MLFQ](https://github.com/user-attachments/assets/0fb46bc4-3dfb-410b-bd5f-90acf67c839e)
+![MLFQ Result](https://github.com/user-attachments/assets/447236fc-ae85-4b2c-8b84-ed1f8c9cfaab)
 
 ---
 
@@ -116,4 +140,3 @@ Average Turnaround Time: 3.80
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Pantine B. Hernando**    | - Led frontend design and implementation of Web GUI.<br>- Developed core backend logic for SRTF, RR, and MLFQ algorithms.<br>- Managed project structure and repository organization.                                      |
 | **Owen Robert S. Magsayo** | - Contributed to Java backend development, including FCFS and SJF algorithms.<br>- Helped develop JavaScript logic in the Web GUI.<br>- Assisted in debugging and integration of frontend with backend. |
-
