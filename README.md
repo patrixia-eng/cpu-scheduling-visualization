@@ -16,7 +16,7 @@ Developed with **Java (Terminal/console)** and **JavaScript HTML (GUI)** version
 2. **Shortest Job First (SJF)** – Non-preemptive
 3. **Shortest Remaining Time First (SRTF)** – Preemptive
 4. **Round Robin (RR)** – Preemptive with configurable time quantum
-5. **Multilevel Feedback Queue (MLFQ)** – Preemptive with configurable time quantums
+5. **Multilevel Feedback Queue (MLFQ)** – Preemptive, with 4 queues and configurable time quantums
 
 ---
 
@@ -83,24 +83,20 @@ Developed with **Java (Terminal/console)** and **JavaScript HTML (GUI)** version
 ## Frontend GUI Screenshots
 
 ### FCFS Simulation Example
-![FCFS](https://github.com/user-attachments/assets/81baf686-e98e-46f0-88d4-ffa0447fe418)
-![FCFS Result](https://github.com/user-attachments/assets/c6066aea-6ace-4092-bc2e-b62341b01b2b)
+<img width="524" height="767" alt="FCFS" src="https://github.com/user-attachments/assets/6c811267-a8e8-482f-b37a-73c27286a279" />
 
 ### SJF Simulation Example
-![SJF](https://github.com/user-attachments/assets/532af708-f50a-461d-9e5d-e91dcf885ef3)
-![SJF Result](https://github.com/user-attachments/assets/060e50f7-c5c3-4767-bfb5-9846a90b33b7)
+<img width="519" height="767" alt="SJF" src="https://github.com/user-attachments/assets/7a68423c-45e9-458d-b7c8-224c06d9702e" />
 
 ### SRTF Simulation Example
-![SRTF](https://github.com/user-attachments/assets/9f842595-da9b-4595-ab5b-fc0d30ef524c)
-![SRTF Result](https://github.com/user-attachments/assets/e0e85816-bdb1-4225-9bc5-050b7750cec8)
+<img width="519" height="760" alt="SRTF" src="https://github.com/user-attachments/assets/2388d833-af22-403f-9e18-45887d6cdce7" />
 
 ### RR Simulation Example
-![RR](https://github.com/user-attachments/assets/2a3be307-e289-4273-8243-0c033e423bfd)
-![RR Result](https://github.com/user-attachments/assets/5c8ffd1b-4929-4bbe-ab13-865bb5fc61cc)
+<img width="518" height="751" alt="RR" src="https://github.com/user-attachments/assets/86a4aa5a-df87-48c7-9ed5-c1ded13ce062" />
 
 ### MLFQ Simulation Example
-![MLFQ](https://github.com/user-attachments/assets/0fb46bc4-3dfb-410b-bd5f-90acf67c839e)
-![MLFQ Result](https://github.com/user-attachments/assets/447236fc-ae85-4b2c-8b84-ed1f8c9cfaab)
+<img width="520" height="761" alt="MLFQ Input" src="https://github.com/user-attachments/assets/5d37f1e6-d443-4635-83c0-4d3034fea8ee" />
+<img width="522" height="344" alt="MLFQ Result" src="https://github.com/user-attachments/assets/f60cefb0-0c6e-4e3b-8550-9851e5b30947" />
 
 ---
 
