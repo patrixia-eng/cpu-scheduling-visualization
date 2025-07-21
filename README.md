@@ -83,20 +83,20 @@ Developed with **Java (Terminal/console)** and **JavaScript HTML (GUI)** version
 ## Frontend GUI Screenshots
 
 ### FCFS Simulation Example
-<img width="524" height="767" alt="FCFS" src="https://github.com/user-attachments/assets/6c811267-a8e8-482f-b37a-73c27286a279" />
+<img width="503" height="762" alt="FCFS" src="https://github.com/user-attachments/assets/8643909f-6727-4d1f-a929-119e47f4d59b" />
 
 ### SJF Simulation Example
-<img width="519" height="767" alt="SJF" src="https://github.com/user-attachments/assets/7a68423c-45e9-458d-b7c8-224c06d9702e" />
+<img width="521" height="759" alt="SJF" src="https://github.com/user-attachments/assets/1f3d0645-5189-426c-b766-11f37600016d" />
 
 ### SRTF Simulation Example
-<img width="519" height="760" alt="SRTF" src="https://github.com/user-attachments/assets/2388d833-af22-403f-9e18-45887d6cdce7" />
+<img width="521" height="767" alt="SRTF" src="https://github.com/user-attachments/assets/c57aa1ec-17d6-4cf7-a86f-6153feb940de" />
 
 ### RR Simulation Example
-<img width="518" height="751" alt="RR" src="https://github.com/user-attachments/assets/86a4aa5a-df87-48c7-9ed5-c1ded13ce062" />
+<img width="513" height="767" alt="RR" src="https://github.com/user-attachments/assets/2cd4ca83-14d1-4143-968d-aeb1919a6632" />
 
 ### MLFQ Simulation Example
-<img width="520" height="761" alt="MLFQ Input" src="https://github.com/user-attachments/assets/5d37f1e6-d443-4635-83c0-4d3034fea8ee" />
-<img width="522" height="344" alt="MLFQ Result" src="https://github.com/user-attachments/assets/f60cefb0-0c6e-4e3b-8550-9851e5b30947" />
+<img width="522" height="698" alt="MLFQ Input" src="https://github.com/user-attachments/assets/762986f0-c1d5-4323-9fe0-30a650af3781" />
+<img width="588" height="394" alt="MLFQ Result" src="https://github.com/user-attachments/assets/cdedcdc0-fdbe-4476-b716-7f78acd63bee" />
 
 ---
 
@@ -119,16 +119,17 @@ Developed with **Java (Terminal/console)** and **JavaScript HTML (GUI)** version
 
 ### Metrics Table:
 
-| PID | Arrival | Burst | Start | Finish | Waiting | Turnaround |
-|-----|---------|-------|-------|--------|---------|------------|
-| P1  | 2       | 1     | 2     | 3      | 0       | 1          |
-| P2  | 4       | 2     | 4     | 6      | 0       | 2          |
-| P3  | 6       | 3     | 6     | 9      | 0       | 3          |
-| P4  | 8       | 4     | 9     | 13     | 1       | 5          |
-| P5  | 10      | 5     | 13    | 18     | 3       | 8          |
+| PID | Arrival | Burst | Completion | Turnaround | Response |
+|-----|---------|-------|------------|------------|----------|
+| P1  | 2       | 1     | 3          | 1          | 0        |
+| P2  | 4       | 2     | 6          | 2          | 0        |
+| P3  | 6       | 3     | 9          | 3          | 0        |
+| P4  | 8       | 4     | 13         | 5          | 1        |
+| P5  | 10      | 5     | 18         | 8          | 3        |
 
-Average Waiting Time: 0.80
+Average Completion Time: 9.80
 Average Turnaround Time: 3.80
+Average Response Time: 0.80
 
 ## Team Contributions
 
