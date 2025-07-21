@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderMLFQInputs() {
         mlfqInputs.innerHTML = '';
-        for (let i = 0; i < 4; i++)
+        for (let i = 0; i < 4; i++) {
             let div = document.createElement('div');
             div.innerHTML = `
                 <label>Quantum Q${i}:</label>
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderMLFQInputs() {
         mlfqInputs.innerHTML = '';
-        for (let i = 0; i < 4; i++) { // Now 4 levels: Q0, Q1, Q2, Q3
+        for (let i = 0; i < 4; i++) {
             let div = document.createElement('div');
             div.innerHTML = `
                 <label>Quantum Q${i}:</label>
@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
             chart.innerHTML = '<em>No Gantt chart available.</em>';
             return;
         }
-        const pxPerUnit = 40; // pixels per unit of time
+        const pxPerUnit = 40;
         chart.style.position = 'relative';
         chart.style.height = '90px';
         let totalWidth = 0;
@@ -252,15 +252,22 @@ document.addEventListener('DOMContentLoaded', function() {
             let bar = gantt[idx];
             let barDiv = document.createElement('div');
             barDiv.className = 'gantt-bar';
-            barDiv.innerText = bar.pid;
+            barDiv.innerHTML = `
+                <div>${bar.pid}</div>
+                <div style="font-size:0.85em;">
+                    <span style="color:#333;">Arr: ${bar.start}</span><br>
+                    <span style="color:#333;">Comp: ${bar.end}</span>
+                    ${bar.queue ? `<br><span style="color:#333;">${bar.queue}</span>` : ''}
+                </div>
+            `;
             barDiv.style.background = getProcessColor(bar.pid);
             barDiv.style.opacity = '1';
             barDiv.style.width = '0px';
             barDiv.style.position = 'absolute';
             barDiv.style.left = (totalWidth) + 'px';
             barDiv.style.top = '30px';
-            barDiv.style.height = '40px';
-            barDiv.style.lineHeight = '40px';
+            barDiv.style.height = '60px';
+            barDiv.style.lineHeight = '20px';
             barDiv.style.textAlign = 'center';
             barDiv.style.borderRadius = '6px';
             barDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
@@ -484,28 +491,81 @@ document.addEventListener('DOMContentLoaded', function() {
         return {result: '', gantt, metrics};
     }
     function runMLFQ(processes, quantums, allotments) {
+        let n = processes.length;
+        let time = 0;
+        let ready = [];
         let gantt = [];
         let metrics = {details: [], avgWaiting: 0, avgTurnaround: 0};
-        let time = 0;
-        let levels = ['Q0', 'Q1', 'Q2', 'Q3'];
-        processes.forEach((p, i) => {
-            let start = Math.max(time, p.arrival);
-            let finish = start + p.burst;
-            gantt.push({pid: p.pid, start, end: finish, queue: levels[i % 4]});
-            let turnaround = finish - p.arrival;
-            let response = start - p.arrival;
+        let finished = Array(n).fill(false);
+        let remaining = processes.map(p => p.burst);
+        let queueLevel = Array(n).fill(0);
+        let allotUsed = Array(n).fill(0);
+        let startTimes = Array(n).fill(null);
+        let finishTimes = Array(n).fill(null);
+
+        while (finished.some(f => !f)) {
+            for (let i = 0; i < n; i++) {
+                if (!finished[i] && processes[i].arrival <= time && !ready.includes(i)) {
+                    ready.push(i);
+                }
+            }
+            let minQueue = 4;
+            ready.forEach(idx => {
+                if (queueLevel[idx] < minQueue) minQueue = queueLevel[idx];
+            });
+            let candidates = ready.filter(idx => queueLevel[idx] === minQueue);
+            if (candidates.length === 0) {
+                time++;
+                continue;
+            }
+            candidates.sort((a, b) => processes[a].arrival - processes[b].arrival);
+            let idx = candidates[0];
+            let q = queueLevel[idx];
+            let quantum = quantums[q];
+            let allotment = allotments[q];
+            let runTime = Math.min(quantum, remaining[idx]);
+            if (startTimes[idx] === null) startTimes[idx] = time;
+            gantt.push({pid: processes[idx].pid, start: time, end: time + runTime, queue: `Q${q}`});
+            remaining[idx] -= runTime;
+            allotUsed[idx] += runTime;
+            time += runTime;
+            if (remaining[idx] === 0) {
+                finishTimes[idx] = time;
+                finished[idx] = true;
+                ready = ready.filter(i => i !== idx);
+                allotUsed[idx] = 0;
+            } else {
+                if (allotUsed[idx] >= allotment && q < 3) {
+                    queueLevel[idx]++;
+                    allotUsed[idx] = 0;
+                }
+            }
+            for (let i = 0; i < n; i++) {
+                if (!finished[i] && processes[i].arrival > time - runTime && processes[i].arrival <= time && !ready.includes(i)) {
+                    ready.push(i);
+                }
+            }
+        }
+        let totalWaiting = 0, totalTurnaround = 0;
+        for (let i = 0; i < n; i++) {
+            let waiting = finishTimes[i] - processes[i].arrival - processes[i].burst;
+            let turnaround = finishTimes[i] - processes[i].arrival;
+            let response = startTimes[i] - processes[i].arrival;
             metrics.details.push({
-                pid: p.pid,
-                arrival: p.arrival,
-                burst: p.burst,
-                finish,
+                pid: processes[i].pid,
+                arrival: processes[i].arrival,
+                burst: processes[i].burst,
+                start: startTimes[i],
+                finish: finishTimes[i],
+                waiting,
                 turnaround,
                 response
             });
-            time = finish;
-        });
-        metrics.avgTurnaround = metrics.details.reduce((sum, m) => sum + m.turnaround, 0) / processes.length;
-        metrics.avgResponse = metrics.details.reduce((sum, m) => sum + m.response, 0) / processes.length;
-        return {result: '', gantt, metrics, levels};
+            totalWaiting += waiting;
+            totalTurnaround += turnaround;
+        }
+        metrics.avgWaiting = totalWaiting / n;
+        metrics.avgTurnaround = totalTurnaround / n;
+        return {result: '', gantt, metrics};
     }
 });
